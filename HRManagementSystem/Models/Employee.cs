@@ -52,6 +52,7 @@ namespace HRManagementSystem.Models
             {
                 SqlCommand command = new SqlCommand("Employee_CRUD", connection);
                 command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.Add("@Action", SqlDbType.NVarChar).Value = operationMode;
                 command.Parameters.Add("@EmployeeCode", SqlDbType.NVarChar).Value = emp.EmployeeCode;
                 command.Parameters.Add("@EmployeeName", SqlDbType.NVarChar).Value = emp.EmployeeName;
                 command.Parameters.Add("@JoinDate", SqlDbType.NVarChar).Value = emp.JoinDate;

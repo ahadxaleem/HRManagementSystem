@@ -51,8 +51,39 @@
 </head>
 <script type="text/javascript">
 
+    function ServerFunction(path, param) {
+        var ret = '';
 
+        $.ajax({
+            url: path,
+            dataType: "json",
+            type: "Post",
+            contentType: 'application/json',
+            data: param,
+            async: false,
+            cache: false,
+            beforeSend: function () {
+                console.log('continue');
+            },
+            success: function (response) {
+                if (response != null) {
+                    ret = response;
+
+                }
+
+                // ret = data.d;
+                console.log('scuccess');
+            },
+            error: function () {
+                console.log('error');
+            },
+        });
+
+        return ret;
+
+    }
     $(document).ready(function () {
+
         $(".ViewEmployee").click(function () {
 
             var empID = $(this).parents('.emprow').find('.empid').val();
@@ -69,9 +100,14 @@
         });
         $(".DeleteEmployee").click(function () {
 
-            var empID = $(this).parents('.emprow').find('.empid').val();
-
-            window.location.href = 'Employee?Id=' + empID;
+            var data =
+            {
+                EmployeeCode: $(this).parents('.emprow').find('.empid').val()
+            }
+            var result = '';
+            data = JSON.stringify(data);
+            result = ServerFunction('../Dashboard/RemoveEmployee', data);
+            window.location.href = window.location.href;
             // LoadEmployee();
         });
     });

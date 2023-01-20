@@ -6,6 +6,7 @@ using System.Web;
 using System.Web.Mvc;
 using HRManagementSystem.Models;
 using System.Data;
+using Newtonsoft.Json;
 
 namespace HRManagementSystem.Controllers
 {
@@ -149,6 +150,23 @@ namespace HRManagementSystem.Controllers
             return Json(e);
             //return View("Login");
         }
+
+        [HttpPost]
+        public bool RemoveEmployee(string EmployeeCode)
+        {
+            bool dt = false;
+            Employee employee = new Employee();
+            employee.EmployeeCode = EmployeeCode;
+            try
+            {
+                EmployeeBusinessService employeeServices = new EmployeeBusinessService();
+                dt = employeeServices.Employee_CRUD(employee,"DELETE");
+            }
+            catch (Exception ex) { }
+
+            return dt;
+        }
+
         public ActionResult Departments()
         {
             return RedirectToAction("LoadDepartments", "Departments");
