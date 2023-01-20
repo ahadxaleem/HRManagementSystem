@@ -1,0 +1,917 @@
+﻿@using HRManagementSystem.Controllers;
+@using HRManagementSystem.Models;
+@{
+    Layout = null;
+}
+
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Emplyess</title>
+
+    <!-- Custom fonts for this template -->
+    <link href="~/Content/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+          rel="stylesheet">
+
+    <!-- Custom styles for this page -->
+    <link href="~/Content/vendor/dataTables/dataTables.bootstrap4.min.css" rel="stylesheet">
+
+    <link href="~/Content/sb-admin-2.css" rel="stylesheet" />
+    <script src="~/Scripts/common.js"></script>
+    <script src="~/Scripts/jquery-3.4.1.min.js"></script>
+
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="~/Scripts/jquery.min.js"></script>
+    <script src="~/Scripts/bootstrap.bundle.min.js"></script>
+    <script src="~/Scripts/bootstrap-dropdown.js"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="~/Content/vendor/jquery-easing/jquery.easing.min.js"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="~/Scripts/sb-admin-2.min.js"></script>
+
+    <!-- Page level plugins -->
+    <script src="~/Content/vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/Content/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+
+    <!-- Page level custom scripts -->
+    <script src="~/Content/vendor/demo/datatables-demo.js"></script>
+
+</head>
+<script type="text/javascript">
+
+    var _isEmployeeUpdateMode = false;
+
+    function submitform() {
+        var postdata = $('#EmployeeDataForm').serialize();
+        var file = document.getElementById('files').files[0];
+        var fd = new FormData();
+        fd.append("files", file);
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/Dashboard/CollectImage", false);
+        xhr.send(fd);
+    }
+
+    function ServerFunction(path, param) {
+        var ret = '';
+
+        $.ajax({
+            url: path,
+            dataType: "json",
+            type: "Post",
+            contentType: 'application/json',
+            data: param,
+            async: false,
+            cache: false,
+            beforeSend: function () {
+                console.log('continue');
+            },
+            success: function (response) {
+                if (response != null) {
+                    ret = response;
+
+                }
+
+                // ret = data.d;
+                console.log('scuccess');
+            },
+            error: function () {
+                console.log('error');
+            },
+        });
+
+        return ret;
+
+    }
+    function LoadEmployee() {
+        var data =
+        {
+            EmployeeCode: $("#EmployeeCode").val()
+        }
+        var result = '';
+        data = JSON.stringify(data);
+        result = ServerFunction('../Dashboard/LoadEmployee', data);
+        if (result != '' && result != null) {
+            $('#EmployeeImage').attr('src', "data:image/jpg;base64," + result.DisplayImage);
+            $('#EmployeeCode').val(result.EmployeeCode);
+            $('#EmployeeName').val(result.EmployeeName);
+            $("select[name='branch']").val(result.Branch);
+            $("select[name='department']").val(result.Department);
+            $("select[name='designation']").val(result.Designation);
+            //window.location.href = "Dashboard/Home";
+
+        }
+
+    }
+
+    function LoadEmployeeByQSID(empid) {
+        var data =
+        {
+            EmployeeCode: empid
+        }
+        var result = '';
+        data = JSON.stringify(data);
+        result = ServerFunction('../Dashboard/LoadEmployee', data);
+        if (result != '' && result != null) {
+            $('#EmployeeImage').attr('src', "data:image/jpg;base64," + result.DisplayImage);
+            $('#EmployeeCode').val(result.EmployeeCode);
+            $('#EmployeeName').val(result.EmployeeName);
+            $('#Branch option[value=' + result.Branch + ']').prop('selected', true)
+            $('#Department option[value=' + result.Department + ']').prop('selected', true)
+            $('#Designation option[value=' + result.Designation + ']').prop('selected', true)
+
+        }
+
+    }
+    function saveEmployee() {
+        var data =
+        {
+            isInserting: 'true'
+        }
+        data = JSON.stringify(data);
+        ServerFunction('../Dashboard/SaveEmployee', data);
+
+
+    }
+    function collectData() {
+        var data =
+        {
+            EmployeeCode: $("#EmployeeCode").val(),
+            EmployeeName: $("#EmployeeName").val(),
+            Department: $("select[name='department']").val(),
+            Branch: $("select[name='branch']").val(),
+            JoinDate: $("#JoinDate").val(),
+            Email: $("#Email").val(),
+            Designation: $("select[name='designation']").val(),
+
+        }
+
+        var dataParam = "{ 'data' : '" + JSON.stringify(data) + "' } ";
+        ServerFunction('../Dashboard/CollectData', dataParam);
+
+
+    }
+    function saveImage() {
+        var fileUpload2 = $(".FileUpload1").get(0);
+        var files = fileUpload2.files;
+
+        var Filedata = new FormData();
+        for (var i = 0; i < files.length; i++) {
+            Filedata.append(files[i].name, files[i]);
+        }
+        return true;
+    }
+
+    $(document).ready(function () {
+
+        //$(".btnAddNew").addClass("hidden");
+        //$(".btnView").addClass("hidden");
+        $(".btnUpdate").addClass("hidden");
+        $(".btnLoad").addClass("hidden");
+        $(".btnSave").addClass("hidden");
+        $(".btnCancel").addClass("hidden");
+        ClearAndDisableCustomerPopUpForm();
+
+        //get QS paramater
+        let searchParams = new URLSearchParams(window.location.search);
+        let employQSId = searchParams.get('Id');
+        let mode = searchParams.get('mode');
+
+        if (employQSId != '' && employQSId != 'undefined' && employQSId != null) {
+            LoadEmployeeByQSID(employQSId);
+            _isEmployeeUpdateMode = false;
+            $(".btnAddNew").addClass("hidden");
+            $(".btnView").addClass("hidden");
+            $(".btnSave").removeClass("hidden");
+            $(".btnDelete").addClass("hidden");
+            $(".btnUpdate").addClass("hidden");
+            $(".btnLoad").addClass("hidden");
+            $(".btnCancel").removeClass("hidden");
+
+            if (mode == 'Edit'){
+            //$('#EmployeeInformationContainer select').val('0').trigger('change');
+            $('#EmployeeInformationContainer input[type=text],input[type=checkbox],input[type=date],input[type=email],textarea').prop('disabled', false);
+            $('#EmployeeInformationContainer select').prop('disabled', false);
+    }
+
+    $("#EmployeeInformationContainer .EmployeeCode").removeClass("no_enable");
+    /*$("#EmployeeInformationContainer .EmployeeCode").prop({ value: true, propName: 'disabled' });*/
+    $("#EmployeeInformationContainer .EmployeeCode").attr('unique_active', 'false');
+        }
+
+    $(".btnAddNew").click(function () {
+        _isEmployeeUpdateMode = false;
+        $(".btnAddNew").addClass("hidden");
+        $(".btnView").addClass("hidden");
+        $(".btnLoad").addClass("hidden");
+        $(".btnDelete").addClass("hidden");
+        $(".btnUpdate").addClass("hidden");
+        $(".btnSave").removeClass("hidden");
+        $(".btnCancel").removeClass("hidden");
+        $("#EmployeeInformationContainer .EmployeeCode").attr('unique_active', 'true');
+
+
+        ClearAndEnableEmployeeForm();
+
+
+    });
+
+    $(".btnCancel").click(function () {
+        _isEmployeeUpdateMode = false;
+        $(".btnSave").addClass("hidden");
+        $(".btnUpdate").addClass("hidden");
+        $(".btnCancel").addClass("hidden");
+        $(".btnLoad").addClass("hidden");
+        $(".btnAddNew").removeClass("hidden");
+        $(".btnView").removeClass("hidden");
+        ClearAndDisableCustomerPopUpForm();
+
+        $("#EmployeeInformationContainer .EmployeeCode").attr('unique_active', 'true');
+
+    });
+
+    $(".btnView").click(function () {
+
+        _isEmployeeUpdateMode = false;
+        $(".btnAddNew").addClass("hidden");
+        $(".btnView").addClass("hidden");
+        $(".btnSave").addClass("hidden");
+        $(".btnDelete").addClass("hidden");
+        $(".btnUpdate").addClass("hidden");
+        $(".btnLoad").removeClass("hidden");
+        $(".btnCancel").removeClass("hidden");
+
+        ClearAndEnableEmployeeForm();
+        $("#EmployeeInformationContainer .EmployeeCode").removeClass("no_enable");
+        /*$("#EmployeeInformationContainer .EmployeeCode").prop({ value: true, propName: 'disabled' });*/
+        $("#EmployeeInformationContainer .EmployeeCode").attr('unique_active', 'false');
+    });
+
+    $(".btnSave").click(function () {
+        submitform();
+        collectData();
+        saveEmployee();
+
+        _isEmployeeUpdateMode = false;
+        $(".btnAddNew").addClass("hidden");
+        $(".btnView").addClass("hidden");
+        $(".btnSave").addClass("hidden");
+        $(".btnUpdate").addClass("hidden");
+        $(".btnLoad").removeClass("hidden");
+        $(".btnCancel").removeClass("hidden");
+
+        ClearAndEnableEmployeeForm();
+        $("#EmployeeInformationContainer .EmployeeCode").removeClass("no_enable");
+        /*$("#EmployeeInformationContainer .EmployeeCode").prop({ value: true, propName: 'disabled' });*/
+        $("#EmployeeInformationContainer .EmployeeCode").attr('unique_active', 'false');
+        window.location.href = 'EmployeeListing';
+    });
+
+    $(".btnLoad").click(function () {
+        LoadEmployee();
+    });
+
+    $(".btnUpdate").click(function () {
+
+        _isEmployeeUpdateMode = true;
+        EnableEmployeePopUpForm();
+
+        $(".btnSave").removeClass("hidden");
+        $(".btnCancel").removeClass("hidden");
+        $(".btnLoad").addClass("hidden");
+        $(".btnUpdate").addClass("hidden");
+        $(".btnAddNew").addClass("hidden");
+        $(".btnView").addClass("hidden");
+    });
+
+
+    });
+
+    function ClearAndEnableEmployeeForm() {
+
+        /*$('#EmployeeInformationContainer').prop('disabled', true)*/
+        $('#EmployeeInformationContainer select').val('0').trigger('change');
+        $('#EmployeeInformationContainer input[type=text],input[type=checkbox],input[type=date],input[type=email],textarea').prop('disabled', false);
+        $('#EmployeeInformationContainer select').prop('disabled', false);
+
+        $('#EmployeeInformationContainer .EmployeeCode').addClass('Required');
+        $('#EmployeeInformationContainer .EmployeeCode').prop('disabled', false);
+
+
+        if (_isEmployeeUpdateMode) {
+            $('#EmployeeInformationContainer .EmployeeCode').prop('disabled', false);
+        }
+    }
+
+    function EnableEmployeePopUpForm() {
+        $('#EmployeeInformationContainer input[type=text],input[type=checkbox],input[type=date], input[type=email],textarea').prop('disabled', false);
+        $('#EmployeeInformationContainer select').prop('disabled', false);
+
+
+        $('#EmployeeInformationContainer .EmployeeCode').addClass('Required');
+        $('#EmployeeInformationContainer #EmployeeCode').removeClass('no_enable');
+        $('#EmployeeInformationContainer .EmployeeCode').prop('disabled', false);
+
+        if (_isEmployeeUpdateMode) {
+            $('#EmployeeInformationContainer .EmployeeCode').prop('disabled', false);
+        }
+    }
+
+    function ClearAndDisableCustomerPopUpForm() {
+
+        $('#EmployeeInformationContainer select').val('0').trigger('change');
+        $('#EmployeeInformationContainer input[type=text],input[type=checkbox],input[type=date],input[type=email],textarea').prop('disabled', true);
+        $('#EmployeeInformationContainer select').prop('disabled', true);
+    }
+
+    function ClearAndEnableCustomerPopUpForm() {
+
+        $('#EmployeeInformationContainer select').val('0').trigger('change');
+        $('#EmployeeInformationContainer input[type=text],input[type=checkbox],input[type=date],input[type=email],textarea').prop('disabled', false);
+        $('#EmployeeInformationContainer select').prop('disabled', false);
+
+        $('#EmployeeInformationContainer .EmployeeCode').addClass('Required');
+        $('#EmployeeInformationContainer .EmployeeCode').prop('disabled', false);
+
+        if (_isEmployeeUpdateMode) {
+            $('#EmployeeInformationContainer .EmployeeCode').prop('disabled', false);
+        }
+    }
+
+
+</script>
+
+
+<body id="page-top">
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+            <!-- Sidebar - Brand -->
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+                <div class="sidebar-brand-icon rotate-n-15">
+                    <i class="fa fa-columns"></i>
+                </div>
+                <div class="sidebar-brand-text mx-3">HR System</div>
+            </a>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider my-0">
+
+            <!-- Nav Item - Dashboard -->
+            <li class="nav-item">
+                <a class="nav-link" href="Home">
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+
+          
+            <!-- Nav Item - Pages Collapse Menu -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages"
+                   aria-expanded="true" aria-controls="collapsePages">
+                    <i class="fas fa-fw fa-folder"></i>
+                    <span>Pages</span>
+                </a>
+                <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Base Pages:</h6>
+                        <a class="collapse-item" href='../Departments/LoadDepartments'>Department Page</a>
+                        <a class="collapse-item" href='../Branches/LoadBranches'>Branches Page</a>
+                        <a class="collapse-item" href='../Designation/LoadDesignation'>Designation Page</a>
+                        <div class="collapse-divider"></div>
+                        <h6 class="collapse-header">Employees:</h6>
+                        <a class="collapse-item" href='Employee'>Employee Page</a>
+                        <a class="collapse-item" href='EmployeeListing'>Employee Listing</a>
+                    </div>
+                </div>
+            </li>
+
+            <!-- Nav Item - Charts -->
+            <li class="nav-item">
+                <a class="nav-link" href="../Dashboard/Home">
+                    <i class="fas fa-fw fa-chart-area"></i>
+                    <span>Charts</span>
+                </a>
+            </li>
+            <!-- Divider -->
+            <hr class="sidebar-divider d-none d-md-block">
+
+            <!-- Sidebar Toggler (Sidebar) -->
+            <div class="text-center d-none d-md-inline">
+                <button class="rounded-circle border-0" id="sidebarToggle"></button>
+            </div>
+
+        </ul>
+        <!-- End of Sidebar -->
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+
+                <!-- Topbar -->
+                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+                    <!-- Sidebar Toggle (Topbar) -->
+                    <form class="form-inline">
+                        <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                    </form>
+
+                    <!-- Topbar Search -->
+                    <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+                        <div class="input-group">
+                            <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..."
+                                   aria-label="Search" aria-describedby="basic-addon2">
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" type="button">
+                                    <i class="fas fa-search fa-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Topbar Navbar -->
+                    <ul class="navbar-nav ml-auto">
+
+                        <!-- Nav Item - Search Dropdown (Visible Only XS) -->
+                        <li class="nav-item dropdown no-arrow d-sm-none">
+                            <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button"
+                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-search fa-fw"></i>
+                            </a>
+                            <!-- Dropdown - Messages -->
+                            <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in"
+                                 aria-labelledby="searchDropdown">
+                                <form class="form-inline mr-auto w-100 navbar-search">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control bg-light border-0 small"
+                                               placeholder="Search for..." aria-label="Search"
+                                               aria-describedby="basic-addon2">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-primary" type="button">
+                                                <i class="fas fa-search fa-sm"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </li>
+
+                        <!-- Nav Item - Alerts -->
+                        <li class="nav-item dropdown no-arrow mx-1">
+                            <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
+                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-bell fa-fw"></i>
+                                <!-- Counter - Alerts -->
+                                <span class="badge badge-danger badge-counter">3+</span>
+                            </a>
+                            <!-- Dropdown - Alerts -->
+                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                                 aria-labelledby="alertsDropdown">
+                                <h6 class="dropdown-header">
+                                    Alerts Center
+                                </h6>
+                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                    <div class="mr-3">
+                                        <div class="icon-circle bg-primary">
+                                            <i class="fas fa-file-alt text-white"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="small text-gray-500">December 12, 2019</div>
+                                        <span class="font-weight-bold">A new monthly report is ready to download!</span>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                    <div class="mr-3">
+                                        <div class="icon-circle bg-success">
+                                            <i class="fas fa-donate text-white"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="small text-gray-500">December 7, 2019</div>
+                                        $290.29 has been deposited into your account!
+                                    </div>
+                                </a>
+                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                    <div class="mr-3">
+                                        <div class="icon-circle bg-warning">
+                                            <i class="fas fa-exclamation-triangle text-white"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="small text-gray-500">December 2, 2019</div>
+                                        Spending Alert: We've noticed unusually high spending for your account.
+                                    </div>
+                                </a>
+                                <a class="dropdown-item text-center small text-gray-500" href="#">Show All Alerts</a>
+                            </div>
+                        </li>
+
+                        <!-- Nav Item - Messages -->
+                        <li class="nav-item dropdown no-arrow mx-1">
+                            <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button"
+                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-envelope fa-fw"></i>
+                                <!-- Counter - Messages -->
+                                <span class="badge badge-danger badge-counter">7</span>
+                            </a>
+                            <!-- Dropdown - Messages -->
+                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                                 aria-labelledby="messagesDropdown">
+                                <h6 class="dropdown-header">
+                                    Message Center
+                                </h6>
+                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                    <div class="dropdown-list-image mr-3">
+                                        <img class="rounded-circle" src="~/Content/vendor/img/undraw_profile_1.svg"
+                                             alt="...">
+                                        <div class="status-indicator bg-success"></div>
+                                    </div>
+                                    <div class="font-weight-bold">
+                                        <div class="text-truncate">
+                                            Hi there! I am wondering if you can help me with a
+                                            problem I've been having.
+                                        </div>
+                                        <div class="small text-gray-500">Emily Fowler · 58m</div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                    <div class="dropdown-list-image mr-3">
+                                        <img class="rounded-circle" src="~/Content/vendor/img/undraw_profile_2.svg"
+                                             alt="...">
+                                        <div class="status-indicator"></div>
+                                    </div>
+                                    <div>
+                                        <div class="text-truncate">
+                                            I have the photos that you ordered last month, how
+                                            would you like them sent to you?
+                                        </div>
+                                        <div class="small text-gray-500">Jae Chun · 1d</div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                    <div class="dropdown-list-image mr-3">
+                                        <img class="rounded-circle" src="~/Content/vendor/img/undraw_profile_3.svg"
+                                             alt="...">
+                                        <div class="status-indicator bg-warning"></div>
+                                    </div>
+                                    <div>
+                                        <div class="text-truncate">
+                                            Last month's report looks great, I am very happy with
+                                            the progress so far, keep up the good work!
+                                        </div>
+                                        <div class="small text-gray-500">Morgan Alvarez · 2d</div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                    <div class="dropdown-list-image mr-3">
+                                        <img class="rounded-circle" src="https://source.unsplash.com/Mv9hjnEUHR4/60x60"
+                                             alt="...">
+                                        <div class="status-indicator bg-success"></div>
+                                    </div>
+                                    <div>
+                                        <div class="text-truncate">
+                                            Am I a good boy? The reason I ask is because someone
+                                            told me that people say this to all dogs, even if they aren't good...
+                                        </div>
+                                        <div class="small text-gray-500">Chicken the Dog · 2w</div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item text-center small text-gray-500" href="#">Read More Messages</a>
+                            </div>
+                        </li>
+
+                        <div class="topbar-divider d-none d-sm-block"></div>
+
+                        <!-- Nav Item - User Information -->
+                        <li class="nav-item dropdown no-arrow">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">@GeneralModel.CurrentUser.FirstName @GeneralModel.CurrentUser.LastName</span>
+                                <img class="img-profile rounded-circle"
+                                     src="~/Content/vendor/img/undraw_profile.svg">
+                            </a>
+                            <!-- Dropdown - User Information -->
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                                 aria-labelledby="userDropdown">
+                                <a class="dropdown-item" href="#">
+                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Profile
+                                </a>
+                                <a class="dropdown-item" href="#">
+                                    <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Settings
+                                </a>
+                                <a class="dropdown-item" href="#">
+                                    <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Activity Log
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Logout
+                                </a>
+                            </div>
+                        </li>
+
+                    </ul>
+
+                </nav>
+                <!-- End of Topbar -->
+                <!-- Begin Page Content -->
+                <div class="container-fluid employeeContainer" id="EmployeeInformationContainer">
+
+                    <!-- Page Heading -->
+                    <!-- DataTales Example -->
+                    <div class="card shadow mb-4">
+                        <h1 class="h3 mb-2 text-gray-800">Employee Page</h1>
+                        <div class="page-content">
+                            <div class="page-content-heading">
+                                <span class="page-content-title">Employee Information</span>
+                            </div>
+                            <div class="bd-example">
+
+                                <div class="row">
+                                    <div class="col-lg-3 col-xs-3 col-sm-3">
+                                        <div class="form-group">
+                                            <label>Employee Code</label>
+                                            <input type="text" class="form-control EmployeeCode" id="EmployeeCode" placeholder="Employee Code">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-xs-3 col-sm-3">
+                                        <div class="form-group">
+                                            <label>Employee Name</label>
+                                            <input type="text" class="form-control" id="EmployeeName" placeholder="Employee Name">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-xs-3 col-sm-3">
+                                        <div class="form-group">
+                                            <label>Appointed By</label>
+                                            <input type="text" class="form-control" id="AppointedBy" placeholder="Appointed By">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-xs-3 col-sm-3">
+                                        <div class="form-group">
+                                            <label>Join Date</label>
+                                            <input type="date" class="form-control" id="JoinDate" placeholder="Join Date">
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-3 col-xs-3 col-sm-3">
+                                        <div class="form-group">
+                                            <label>Quolification</label>
+                                            <select class="form-control" name="qualification" id="Qualification">
+                                                <option value="Graduation">Graduation</option>
+                                                <option value="Master">Master</option>
+                                                <option value="PHD">PHD</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-xs-3 col-sm-3">
+                                        <div class="form-group">
+                                            <label>Gender</label>
+                                            <select class="form-control" name="gender" id="Gender">
+                                                <option value="Male">Male</option>
+                                                <option value="Female">Female</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-xs-3 col-sm-3">
+                                        <div class="form-group">
+                                            <label>Date Of Birth</label>
+                                            <input type="date" class="form-control" id="DOB" placeholder="DD/MM/YYYY">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-xs-3 col-sm-3">
+                                        <div class="form-group">
+                                            <label>Religion</label>
+                                            <select class="form-control" name="religion" id="Religion">
+                                                <option value="Islam">Islam</option>
+                                                <option value="Christian">Christian</option>
+                                                <option value="Hindu">Hindu</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-3 col-xs-3 col-sm-3">
+                                        <div class="form-group">
+                                            <label>Marital Status</label>
+                                            <select class="form-control" name="MS" id="MS">
+                                                <option value="Single">Single</option>
+                                                <option value="Married">Married</option>
+                                                <option value="Widowed">Widowed</option>
+                                                <option value="Separated">Separated</option>
+                                                <option value="Divorced">Divorced</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-xs-3 col-sm-3">
+                                        <div class="form-group">
+                                            <label>No of Dependents</label>
+                                            <input type="text" class="form-control" id="NoOfDependents">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-xs-3 col-sm-3">
+                                        <div class="form-group">
+                                            <label>Email</label>
+                                            <input type="email" id="Email" class="form-control" id="Email">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-xs-3 col-sm-3">
+                                        <div class="form-group">
+                                            <label>Employee Picture</label>
+                                            <div class="document-wrap">
+                                                <div id="viewMode" class="document-thumb">
+                                                    <img src="~/Content/vendor/img/download.png" id="EmployeeImage" width="100px" height="100px" class="employeeImage Image1" alt="Picture">
+                                                    <button class="btn DeleteButton DeleteImg1" title="" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete" style="display: none;"><i class="icon-trash-outline"></i></button>
+                                                </div>
+                                            </div>
+                                            <input type="file" name="photo" id="files" accept="image/*;capture=camera">
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <!---------------------------------------------------->
+                                <div class="row">
+                                    <div class="col-lg-3 col-xs-3 col-sm-3">
+                                        <div class="form-group">
+                                            <label>Department</label>
+                                            <select class="form-control" name="department" id="Department">
+                                                @foreach (var item in ViewData["departments"] as List<Departments>)
+                                                {
+                                                    <option value="@item.Name">@item.Name</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-xs-3 col-sm-3">
+                                        <div class="form-group">
+                                            <label>Select Branch</label>
+                                            <select class="form-control" name="branch" id="Branch">
+                                                @foreach (var item in ViewData["branches"] as List<Branches>)
+                                                {
+                                                    <option value="@item.Name">@item.Name</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-xs-3 col-sm-3">
+                                        <div class="form-group">
+                                            <label>Select Designation</label>
+                                            <select class="form-control" name="designation" id="Designation">
+                                                @foreach (var item in ViewData["designation"] as List<Designation>)
+                                                {
+                                                    <option value="@item.Name">@item.Name</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---------------------------------------------------->
+                            </div>
+
+                        </div>
+                        <div class="page-content">
+                            <div class="page-content-heading">
+                                <span class="page-content-title">Contact Information</span>
+                            </div>
+                            <div class="bd-example">
+                                <div class="row">
+                                    <div class="col-lg-3 col-xs-3 col-sm-3">
+                                        <div class="form-group">
+                                            <label>Post Box</label>
+                                            <input type="text" class="form-control" id="PostBox">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-xs-3 col-sm-3">
+                                        <div class="form-group">
+                                            <label>Country</label>
+                                            <input type="text" class="form-control" id="Country">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-xs-3 col-sm-3">
+                                        <div class="form-group">
+                                            <label>City</label>
+                                            <input type="text" class="form-control" id="City">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-xs-3 col-sm-3">
+                                        <div class="form-group">
+                                            <label>Landline</label>
+                                            <input type="text" class="form-control" id="Landline">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-xs-3 col-sm-3">
+                                        <div class="form-group">
+                                            <label>Mobile</label>
+                                            <input type="text" class="form-control" id="Mobile">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-xs-3 col-sm-3">
+                                        <div class="form-group">
+                                            <label>Address</label>
+                                            <textarea type="text" class="form-control" id="Address"></textarea>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="customhr" />
+                        <div class="row">
+
+                            <div class="col-lg-12 col-xs-12 col-sm-12">
+                                <button type="button" class="btn btn-primary btnAddNew">Add New</button>
+                                <button type="button" class="btn btn-primary btnUpdate">Update</button>
+                                <button type="button" class="btn btn-primary btnDelete">Delete</button>
+                                <button type="button" class="btn btn-primary btnLoad">Load</button>
+                                @*<button type="button" class="btn btn-primary btnSave">Save</button>*@
+                                <button type="submit" class="btnSave btn btn-primary">Save</button>
+                                <button type="button" class="btn btn-primary btnCancel">Cancel</button>
+                                <button type="button" class="btn btn-secondary btnView">View</button>
+                            </div>
+                        </div>
+
+
+
+                    </div>
+
+
+                </div>
+                <!-- /.container-fluid -->
+
+            </div>
+            <!-- End of Main Content -->
+            <!-- Footer -->
+            <footer class="sticky-footer bg-white">
+                <div class="container my-auto">
+                    <div class="copyright text-center my-auto">
+                        <span>Copyright &copy; Your Website 2020</span>
+                    </div>
+                </div>
+            </footer>
+            <!-- End of Footer -->
+
+        </div>
+        <!-- End of Content Wrapper -->
+
+    </div>
+    <!-- End of Page Wrapper -->
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Logout Modal-->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                    <a class="btn btn-primary" href='@Url.Action("RedirectToLogout", "Home")'>Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+</body>
+
+
+</html>
