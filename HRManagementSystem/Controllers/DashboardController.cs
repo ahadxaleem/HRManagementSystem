@@ -177,14 +177,16 @@ namespace HRManagementSystem.Controllers
             return RedirectToAction("LoadBranches", "Branches");
         }
 
-        public ActionResult EmployeeListing()
+        public ActionResult EmployeeListing(int page=1, int rowlength=1)
         {
             DataTable dt = null;
+            int totalEmp=0;
             List<Employee> bts = new List<Employee>();
             try
             {
                 EmployeeBusinessService empBusinessSerice = new EmployeeBusinessService();
-                dt = empBusinessSerice.Employee_SelectAll();
+                dt = empBusinessSerice.Select_page(page,rowlength);
+                totalEmp = empBusinessSerice.emp_count();
 
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
@@ -204,6 +206,7 @@ namespace HRManagementSystem.Controllers
                 Console.WriteLine(ex.Message);
             }
             ViewData["employees"] = bts;
+            ViewData["totalEmp"] = totalEmp;
 
             return View();
         }

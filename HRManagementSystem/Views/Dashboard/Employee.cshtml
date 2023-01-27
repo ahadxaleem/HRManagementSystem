@@ -199,101 +199,101 @@
             $(".btnLoad").addClass("hidden");
             $(".btnCancel").removeClass("hidden");
 
-            if (mode == 'Edit'){
-            //$('#EmployeeInformationContainer select').val('0').trigger('change');
-            $('#EmployeeInformationContainer input[type=text],input[type=checkbox],input[type=date],input[type=email],textarea').prop('disabled', false);
-            $('#EmployeeInformationContainer select').prop('disabled', false);
-    }
+            if (mode == 'Edit') {
+                //$('#EmployeeInformationContainer select').val('0').trigger('change');
+                $('#EmployeeInformationContainer input[type=text],input[type=checkbox],input[type=date],input[type=email],textarea').prop('disabled', false);
+                $('#EmployeeInformationContainer select').prop('disabled', false);
+            }
 
-    $("#EmployeeInformationContainer .EmployeeCode").removeClass("no_enable");
-    /*$("#EmployeeInformationContainer .EmployeeCode").prop({ value: true, propName: 'disabled' });*/
-    $("#EmployeeInformationContainer .EmployeeCode").attr('unique_active', 'false');
+            $("#EmployeeInformationContainer .EmployeeCode").removeClass("no_enable");
+            /*$("#EmployeeInformationContainer .EmployeeCode").prop({ value: true, propName: 'disabled' });*/
+            $("#EmployeeInformationContainer .EmployeeCode").attr('unique_active', 'false');
         }
 
-    $(".btnAddNew").click(function () {
-        _isEmployeeUpdateMode = false;
-        $(".btnAddNew").addClass("hidden");
-        $(".btnView").addClass("hidden");
-        $(".btnLoad").addClass("hidden");
-        $(".btnDelete").addClass("hidden");
-        $(".btnUpdate").addClass("hidden");
-        $(".btnSave").removeClass("hidden");
-        $(".btnCancel").removeClass("hidden");
-        $("#EmployeeInformationContainer .EmployeeCode").attr('unique_active', 'true');
+        $(".btnAddNew").click(function () {
+            _isEmployeeUpdateMode = false;
+            $(".btnAddNew").addClass("hidden");
+            $(".btnView").addClass("hidden");
+            $(".btnLoad").addClass("hidden");
+            $(".btnDelete").addClass("hidden");
+            $(".btnUpdate").addClass("hidden");
+            $(".btnSave").removeClass("hidden");
+            $(".btnCancel").removeClass("hidden");
+            $("#EmployeeInformationContainer .EmployeeCode").attr('unique_active', 'true');
 
 
-        ClearAndEnableEmployeeForm();
+            ClearAndEnableEmployeeForm();
 
 
-    });
+        });
 
-    $(".btnCancel").click(function () {
-        _isEmployeeUpdateMode = false;
-        $(".btnSave").addClass("hidden");
-        $(".btnUpdate").addClass("hidden");
-        $(".btnCancel").addClass("hidden");
-        $(".btnLoad").addClass("hidden");
-        $(".btnAddNew").removeClass("hidden");
-        $(".btnView").removeClass("hidden");
-        ClearAndDisableCustomerPopUpForm();
+        $(".btnCancel").click(function () {
+            _isEmployeeUpdateMode = false;
+            $(".btnSave").addClass("hidden");
+            $(".btnUpdate").addClass("hidden");
+            $(".btnCancel").addClass("hidden");
+            $(".btnLoad").addClass("hidden");
+            $(".btnAddNew").removeClass("hidden");
+            $(".btnView").removeClass("hidden");
+            ClearAndDisableCustomerPopUpForm();
 
-        $("#EmployeeInformationContainer .EmployeeCode").attr('unique_active', 'true');
+            $("#EmployeeInformationContainer .EmployeeCode").attr('unique_active', 'true');
 
-    });
+        });
 
-    $(".btnView").click(function () {
+        $(".btnView").click(function () {
 
-        _isEmployeeUpdateMode = false;
-        $(".btnAddNew").addClass("hidden");
-        $(".btnView").addClass("hidden");
-        $(".btnSave").addClass("hidden");
-        $(".btnDelete").addClass("hidden");
-        $(".btnUpdate").addClass("hidden");
-        $(".btnLoad").removeClass("hidden");
-        $(".btnCancel").removeClass("hidden");
+            _isEmployeeUpdateMode = false;
+            $(".btnAddNew").addClass("hidden");
+            $(".btnView").addClass("hidden");
+            $(".btnSave").addClass("hidden");
+            $(".btnDelete").addClass("hidden");
+            $(".btnUpdate").addClass("hidden");
+            $(".btnLoad").removeClass("hidden");
+            $(".btnCancel").removeClass("hidden");
 
-        ClearAndEnableEmployeeForm();
-        $("#EmployeeInformationContainer .EmployeeCode").removeClass("no_enable");
-        /*$("#EmployeeInformationContainer .EmployeeCode").prop({ value: true, propName: 'disabled' });*/
-        $("#EmployeeInformationContainer .EmployeeCode").attr('unique_active', 'false');
-    });
+            ClearAndEnableEmployeeForm();
+            $("#EmployeeInformationContainer .EmployeeCode").removeClass("no_enable");
+            /*$("#EmployeeInformationContainer .EmployeeCode").prop({ value: true, propName: 'disabled' });*/
+            $("#EmployeeInformationContainer .EmployeeCode").attr('unique_active', 'false');
+        });
 
-    $(".btnSave").click(function () {
-        submitform();
-        collectData();
-        saveEmployee();
+        $(".btnSave").click(function () {
+            submitform();
+            collectData();
+            saveEmployee();
 
-        _isEmployeeUpdateMode = false;
-        $(".btnAddNew").addClass("hidden");
-        $(".btnView").addClass("hidden");
-        $(".btnSave").addClass("hidden");
-        $(".btnUpdate").addClass("hidden");
-        $(".btnLoad").removeClass("hidden");
-        $(".btnCancel").removeClass("hidden");
+            _isEmployeeUpdateMode = false;
+            $(".btnAddNew").addClass("hidden");
+            $(".btnView").addClass("hidden");
+            $(".btnSave").addClass("hidden");
+            $(".btnUpdate").addClass("hidden");
+            $(".btnLoad").removeClass("hidden");
+            $(".btnCancel").removeClass("hidden");
 
-        ClearAndEnableEmployeeForm();
-        $("#EmployeeInformationContainer .EmployeeCode").removeClass("no_enable");
-        /*$("#EmployeeInformationContainer .EmployeeCode").prop({ value: true, propName: 'disabled' });*/
-        $("#EmployeeInformationContainer .EmployeeCode").attr('unique_active', 'false');
-        window.location.href = 'EmployeeListing';
-    });
+            ClearAndEnableEmployeeForm();
+            $("#EmployeeInformationContainer .EmployeeCode").removeClass("no_enable");
+            /*$("#EmployeeInformationContainer .EmployeeCode").prop({ value: true, propName: 'disabled' });*/
+            $("#EmployeeInformationContainer .EmployeeCode").attr('unique_active', 'false');
+            window.location.href = 'EmployeeListing';
+        });
 
-    $(".btnLoad").click(function () {
-        LoadEmployee();
-    });
+        $(".btnLoad").click(function () {
+            LoadEmployee();
+        });
 
-    $(".btnUpdate").click(function () {
+        $(".btnUpdate").click(function () {
 
-        _isEmployeeUpdateMode = true;
-        EnableEmployeePopUpForm();
+            _isEmployeeUpdateMode = true;
+            EnableEmployeePopUpForm();
 
-        $(".btnSave").removeClass("hidden");
-        $(".btnCancel").removeClass("hidden");
-        $(".btnLoad").addClass("hidden");
-        $(".btnUpdate").addClass("hidden");
-        $(".btnAddNew").addClass("hidden");
-        $(".btnView").addClass("hidden");
-    });
+            $(".btnSave").removeClass("hidden");
+            $(".btnCancel").removeClass("hidden");
+            $(".btnLoad").addClass("hidden");
+            $(".btnUpdate").addClass("hidden");
+            $(".btnAddNew").addClass("hidden");
+            $(".btnView").addClass("hidden");
+        });
 
 
     });

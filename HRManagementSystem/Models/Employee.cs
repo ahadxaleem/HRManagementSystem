@@ -77,6 +77,28 @@ namespace HRManagementSystem.Models
             return rowsAffected > 0 ? true : false;
         }
 
+        public int emp_count()
+        {
+            Int32 count = 0;
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                SqlCommand command = new SqlCommand("noofemp", connection);
+                command.CommandType = CommandType.StoredProcedure;
+
+                try
+                {
+                    connection.Open();
+                    count = Convert.ToInt32(command.ExecuteScalar());
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+
+            return count;
+        }
+
         public DataSet User_SelectFromDB(string Email, string Password)
         {
             DataSet ds = new DataSet();
@@ -148,6 +170,31 @@ namespace HRManagementSystem.Models
             }
             return ds;
         }
+
+        public DataSet Employee_page(int page, int rowlength)
+        {
+            DataSet ds = new DataSet();
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                SqlDataAdapter da = new SqlDataAdapter();
+                SqlCommand command = new SqlCommand("GetEmployees", connection);
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.Add("@PageNumber", SqlDbType.Int).Value = page;
+                command.Parameters.Add("@RowCount", SqlDbType.Int).Value = rowlength;
+                da.SelectCommand = (SqlCommand)command;
+                try
+                {
+                    connection.Open();
+                    da.Fill(ds);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return ds;
+        }
+
         public Employee CreateEmployeeFromDataRow(DataRow dr)
         {
             if (dr != null)
@@ -181,6 +228,16 @@ namespace HRManagementSystem.Models
         {
             DataTable employeeTable = null;
             DataSet ds = Employee_SelectAll_DB();
+
+            if ((ds != null) && (ds.Tables.Count > 0) && (ds.Tables[0].Rows.Count > 0))
+                employeeTable = ds.Tables[0];
+            return employeeTable;
+        }
+
+        public DataTable Select_page(int page, int rowlength)
+        {
+            DataTable employeeTable = null;
+            DataSet ds = Employee_page(page,rowlength);
 
             if ((ds != null) && (ds.Tables.Count > 0) && (ds.Tables[0].Rows.Count > 0))
                 employeeTable = ds.Tables[0];

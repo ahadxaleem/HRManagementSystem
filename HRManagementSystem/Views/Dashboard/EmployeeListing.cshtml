@@ -89,14 +89,14 @@
             var empID = $(this).parents('.emprow').find('.empid').val();
 
             window.location.href = 'Employee?Id=' + empID + '&mode=View';
-           // LoadEmployee();
+            // LoadEmployee();
         });
         $(".EditEmployee").click(function () {
 
             var empID = $(this).parents('.emprow').find('.empid').val();
             /*LoadEmployee();*/
             window.location.href = 'Employee?Id=' + empID + '&mode=Edit';
-            
+
         });
         $(".DeleteEmployee").click(function () {
 
@@ -111,7 +111,7 @@
             // LoadEmployee();
         });
     });
-   
+
 </script>
 
 
@@ -499,7 +499,66 @@
                             </div>
 
                         </div>
-               
+
+                        <nav aria-label="Page navigation example">
+                            <ul class="pagination">
+                                @if ((int)ViewData["totalEmp"] > 3)
+                                {
+                                    int start = 0;
+                                    Uri myUri = new Uri(Request.Url.AbsoluteUri);
+                                    string curpage = HttpUtility.ParseQueryString(myUri.Query).Get("page");
+                                    int page = 0;
+                                    if (curpage != null)
+                                    {
+                                        page = Int32.Parse(curpage);
+                                    }
+                                    //string param1 = HttpUtility.ParseQueryString(myUri.Query).Get("param1");
+                                    if (page > 2)
+                                    {
+                                        if (page == (int)ViewData["totalEmp"])
+                                        {
+                                            start = page - 3;
+                                        }
+                                        else
+                                        {
+                                            start = page - 2;
+                                        }
+                                    }
+                                    if ((page - 1) > 1)
+                                    {
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page=1" aria-label="Previous">
+                                                <span aria-hidden="true">&laquo;</span>
+                                            </a>
+                                        </li>
+                                    }
+
+                                    for (int i = start; i < start+3; i++)
+                                    {
+                                        <li class="page-item"><a class="page-link" href="?page=@(i+1)">@(i+1)</a></li>
+
+                                    }
+                                    if ((page + 1) < (int)ViewData["totalEmp"])
+                                    {
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page=@((int)ViewData["totalEmp"])" aria-label="Next">
+                                                <span aria-hidden="true">&raquo;</span>
+                                            </a>
+                                        </li>
+                                    }
+                                }
+                                else
+                                {
+                                    for (int i = 0; i < (int)ViewData["totalEmp"]; i++)
+                                    {
+                                        <li class="page-item"><a class="page-link" href="?page=@(i+1)">@(i+1)</a></li>
+
+                                    }
+                                }
+
+                            </ul>
+                        </nav>
+
 
                     </div>
 
